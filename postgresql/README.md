@@ -12,7 +12,7 @@ docker run \
 
 ## Generate random data for local test
 
-```postgresql
+```sql
 INSERT INTO page_views (site_id, page_id, host_ip, visit_time)
 select (100 * random())::int + 1,
        (100 * random())::int + 1,
@@ -30,7 +30,7 @@ from generate_series(1, 100000)
 
 ### 1. Write a query to show the total count per site_id and page_id for the last two months.
 
-```postgresql
+```sql
 SELECT page_id, site_id, count(1) as count_view
 FROM page_views
 WHERE page_id = $page_id
@@ -41,7 +41,7 @@ GROUP BY page_id, site_id
 
 ### 2. Create a table (daily_page_visits) for holding daily pre-aggregated data for the page visits count, grouped by site_id, page_id and day
 
-```postgresql
+```sql
 CREATE TABLE daily_page_visits
 (
     site_id   int,
@@ -55,7 +55,7 @@ CREATE INDEX daily_page_site_id_idx ON daily_page_visits (site_id);
 
 ### 3. Create a function for populating the pre-aggregated table every hour (you can use a helper table to holld the last update time);
 
-```postgresql
+```sql
 CREATE TABLE helper_pre_aggregate_table
 (
     name        regclass primary key,
@@ -99,7 +99,7 @@ I would set up cron via celery and call the function every hour, alternative to 
 
 ### 4. Write a query to show the total count per site_id and page_id for the last two months until now, using the the both big and pre-aggregated tables.
 
-```postgresql
+```sql
 SELECT page_id,
        site_id,
        sum(count) AS count
@@ -129,7 +129,7 @@ GROUP BY page_id,
 
 alternative
 
-```postgresql
+```sql
 SELECT pre_aggregate_daily_page_visits();
 SELECT page_id,
        site_id,
